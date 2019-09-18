@@ -5,13 +5,13 @@
  */
 package BLL;
 
+import BLL.OPC.ClientRunner;
 import BLL.OPC.Subscription;
-import Entity.DatabaseFieldType;
 import Entity.Descriptor;
 import Entity.OPCData;
 import Entity.SQLData;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -22,30 +22,42 @@ public class SubscriptionManager {
     private OPCData opcData;
     private SQLData sqlData;
 
-    private Subscription subscription;
+    private List<Subscription> subscriptions;
     
     public SubscriptionManager(OPCData opcData, SQLData sqlData) {
         this.opcData = opcData;
         this.sqlData = sqlData;
+        
+        subscriptions = new ArrayList<>();
     }
     
     public void startMonitoring() {
-        createSubscription();
+        createSubscriptions();
+        
+        for (Subscription subscription : subscriptions) {
+            new ClientRunner(subscription).run();
+        }
        
     }
 
-    private void createSubscription() {
-        Descriptor descriptor = sqlData.getDescriptor();
+    private void createSubscriptions() {
+        List<Descriptor> descriptors = sqlData.getDescriptors();
         
-        if (opcData.getAnon()) {
-            subscription = new Subscription(opcData.getUrl(), true, descriptor.getNamespace(), descriptor.getNodeid(), descriptor.getNodeidType());
-        } else {
-            subscription = new Subscription(opcData.getUrl(), opcData.getName(), opcData.getPassword(), descriptor.getNamespace(), descriptor.getNodeid(), descriptor.getNodeidType());
+        String url = opcData.getUrl();
+        
+        if(opcData.getAnon()) {
+            for (Descriptor descriptor : descriptors) {
+                Subscription sub = new Subscription(url, true, descriptor.getNamespace(), descriptor.getNodeid(), descriptor.getNodeidType());
+                subscriptions.add(sub);
+            }
+        } else { 
+            String name = opcData.getName();
+            String pass = opcData.getPassword();
+            for (Descriptor descriptor : descriptors) {
+                Subscription sub = new Subscription(url, name, pass, descriptor.getNamespace(), descriptor.getNodeid(), descriptor.getNodeidType());
+                subscriptions.add(sub);
+            }
         }
-        
-        String dbField = descriptor.getDbField();
-        DatabaseFieldType type = descriptor.getType();
-        
     }
     
 }

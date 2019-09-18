@@ -6,6 +6,7 @@
 package Entity;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -58,7 +59,7 @@ public class SQLData implements Serializable {
     @Transient
     private DescriptorConn dc;
     @Transient
-    private Descriptor descriptor;
+    private List<Descriptor> descriptors;
     
     public SQLData() {
     }
@@ -131,12 +132,12 @@ public class SQLData implements Serializable {
         this.dc = dc;
     }
 
-    public Descriptor getDescriptor() {
-        return descriptor;
+    public List<Descriptor> getDescriptors() {
+        return descriptors;
     }
 
-    public void setDescriptor(Descriptor descriptor) {
-        this.descriptor = descriptor;
+    public void setDescriptors(List<Descriptor> descriptors) {
+        this.descriptors = descriptors;
     }
     
     @Override

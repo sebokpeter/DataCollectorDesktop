@@ -54,7 +54,7 @@ public class SQLConfigurationReader implements SQLConfigurationReaderInterface{
         
         Query q3 = manager.createNamedQuery("Descriptor.findByDId").setParameter("dId", sqlData.getDId());
         
-        sqlData.setDescriptor((Descriptor) q3.getResultList().get(0));
+        sqlData.setDescriptors((List<Descriptor>) q3.getResultList());
         
         return sqlData;
     }

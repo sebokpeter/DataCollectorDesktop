@@ -52,6 +52,8 @@ public class DataCollectorMain {
         
         SubscriptionManager manager = new SubscriptionManager(opcData, data);
         
+        manager.startMonitoring();
+        
     }
 
     /**

@@ -5,19 +5,10 @@
  */
 package DAL;
 
-import Entity.Data;
-import java.util.List;
-
 /**
  * Responsible for connecting to the MS SQL database
  * @author Peter
  */
 public interface MSSQLConnectionInterface {
-        
-    /**
-     * Reads data from the MS SQL database.
-     * @return All the records from the table
-     */
-    public List<Data> readData();
-    
+       
 }

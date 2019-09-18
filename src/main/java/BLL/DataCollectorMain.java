@@ -5,22 +5,11 @@
  */
 package BLL;
 
-import BLL.Test.Browser;
-import BLL.OPC.ClientRunner;
-import BLL.Test.ClientStandalone;
-import BLL.Test.NodeBrowser;
-import BLL.Test.PlayerControl;
-import BLL.OPC.Subscription;
-import BLL.Test.SubscriptionExample;
-import BLL.Test.Triggering;
-import DAL.MSSQLConnection;
 import DAL.MSSQLConnectionInterface;
 import DAL.OPCConfigurationReader;
 import DAL.OPCConfigurationReaderInterface;
 import DAL.SQLConfigurationReader;
 import DAL.SQLConfigurationReaderInterface;
-import Entity.Data;
-import Entity.Descriptor;
 import Entity.OPCData;
 import Entity.SQLData;
 import Utils.Utility;
@@ -146,13 +135,5 @@ public class DataCollectorMain {
         
         return new int[] {id, opcid};
         
-    }
-
-    private static void getDataFromMssql(SQLData data) {
-        dataReader = new MSSQLConnection(data);
-        
-        for (Data data1 : dataReader.readData()) {
-            System.out.println(data1.toString());
-        }
     }
 }

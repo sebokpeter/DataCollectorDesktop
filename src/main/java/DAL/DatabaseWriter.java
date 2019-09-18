@@ -5,22 +5,19 @@
  */
 package DAL;
 
-import Entity.Data;
 import Entity.DatabaseFieldType;
 import Entity.SQLData;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 import javax.persistence.spi.PersistenceUnitTransactionType;
 import org.eclipse.persistence.config.PersistenceUnitProperties;
-import org.eclipse.persistence.jpa.jpql.parser.DatabaseType;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -30,7 +27,8 @@ import org.slf4j.LoggerFactory;
 public class DatabaseWriter implements Runnable, MSSQLConnectionInterface{
     
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(getClass());
-
+    private final Logger jdbcLogger = Logger.getLogger("com.microsoft.sqlserver.jdbc");
+    
     
     private static final String PERSISTENCE_NAME = "MSSQLManager";
     private Map properties;
@@ -41,13 +39,20 @@ public class DatabaseWriter implements Runnable, MSSQLConnectionInterface{
     
     private LinkedBlockingQueue<String> queue;
     
+    private boolean terminate = false;
+    
+    private String query;
+    private String tableName;
+    private String fieldName;
+    
     public DatabaseWriter(SQLData data) {
       try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(MSSQLConnection.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(DatabaseWriter.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+        jdbcLogger.setLevel(Level.ALL);
         String url = "jdbc:sqlserver://" + data.getDbAddress() + ":" + data.getDbPort() + ";databaseName=" + data.getDbName();
         
         properties = new HashMap();
@@ -67,21 +72,80 @@ public class DatabaseWriter implements Runnable, MSSQLConnectionInterface{
     
     @Override
     public void run() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+        query = String.format("INSERT INTO %s (%s) VALUES (?)", tableName, fieldName);
 
-    @Override
-    public List<Data> readData() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        while (!terminate) {            
+            String data = null;
+            try {
+                data = queue.take();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(DatabaseWriter.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            manager.getTransaction().begin();
+            Query q = manager.createNativeQuery(query);
+            switch(type) {
+                case STRING:
+                    saveString(data, q);
+                    break;
+                case REAL:
+                    saveReal(data, q);
+                    break;
+                case INTEGER:
+                    saveInt(data, q);
+                    break;
+                case BOOLEAN:
+                    saveBoolean(data, q);
+                    break;
+                default:
+                    logger.error("Data type not recognized ({}), stopping writer.", type);
+                    stop();
+            }
+            int executeUpdate = q.executeUpdate();
+            logger.info("Rows modified: {}", executeUpdate);
+            manager.getTransaction().commit();
+        }
     }
 
     public void setType(DatabaseFieldType type) {
         this.type = type;
     }
     
+    public void stop() {
+        this.terminate = true;
+    }
+    
     public void addData(String data) {
         queue.add(data);
-        logger.info("Value added recieved: value={}", data);
-
+        logger.info("Value added: {}", data);
     }
+
+    private void saveString(String data, Query q) {
+        q.setParameter(1, data);
+    }
+
+    private void saveReal(String data,  Query q) {
+        double d = Double.parseDouble(data);
+        q.setParameter(1, d);
+    }
+
+    private void saveInt(String data,  Query q) {
+        int d = Integer.parseInt(data);
+        q.setParameter(1, d);
+    }
+
+    private void saveBoolean(String data,  Query q) {
+        boolean b = Boolean.getBoolean(data);
+        q.setParameter(1, b);
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
+    public void setFieldName(String fieldName) {
+        this.fieldName = fieldName;
+    }
+    
+    
 }

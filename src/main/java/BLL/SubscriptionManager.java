@@ -7,9 +7,12 @@ package BLL;
 
 import BLL.OPC.ClientRunner;
 import BLL.OPC.Subscription;
+import DAL.DatabaseWriter;
 import Entity.Descriptor;
+import Entity.DescriptorConn;
 import Entity.OPCData;
 import Entity.SQLData;
+import com.google.common.eventbus.Subscribe;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,42 +25,38 @@ public class SubscriptionManager {
     private OPCData opcData;
     private SQLData sqlData;
 
-    private List<Subscription> subscriptions;
+    private Subscription subscription;
+    
     
     public SubscriptionManager(OPCData opcData, SQLData sqlData) {
         this.opcData = opcData;
         this.sqlData = sqlData;
         
-        subscriptions = new ArrayList<>();
     }
     
     public void startMonitoring() {
         createSubscriptions();
         
-        for (Subscription subscription : subscriptions) {
-            new ClientRunner(subscription).run();
-        }
+        new ClientRunner(subscription).run();
        
     }
 
     private void createSubscriptions() {
         List<Descriptor> descriptors = sqlData.getDescriptors();
-        
         String url = opcData.getUrl();
         
         if(opcData.getAnon()) {
-            for (Descriptor descriptor : descriptors) {
-                Subscription sub = new Subscription(url, true, descriptor.getNamespace(), descriptor.getNodeid(), descriptor.getNodeidType());
-                subscriptions.add(sub);
-            }
-        } else { 
-            String name = opcData.getName();
+            subscription = new Subscription(url, true);
+        } else {
+            String name = opcData.getUsername();
             String pass = opcData.getPassword();
-            for (Descriptor descriptor : descriptors) {
-                Subscription sub = new Subscription(url, name, pass, descriptor.getNamespace(), descriptor.getNodeid(), descriptor.getNodeidType());
-                subscriptions.add(sub);
-            }
+            
+            subscription = new Subscription(url, name, pass);
         }
+        
+        subscription.setData(sqlData);
+        subscription.setDescriptions(descriptors);
+        
     }
     
 }

@@ -1,3 +1,6 @@
 
 *.class
 *.class
+*.jar
+*.lst
+*.class

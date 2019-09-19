@@ -44,9 +44,9 @@ public class Subscription extends ClientBase {
     private final AtomicLong clientHandles = new AtomicLong(1L);
     
     private List<Descriptor> descriptions;
-    
-    private Map<Object, DatabaseWriter> databaseWriters = new HashMap<>();
     private SQLData data;
+    
+    DatabaseWriter writer;
     
     public Subscription(String url, String username, String password) {
         super(url, username, password);
@@ -63,6 +63,10 @@ public class Subscription extends ClientBase {
     @Override
     void run(OpcUaClient client, CompletableFuture<OpcUaClient> future) throws Exception {
         
+        // Create database writer
+        writer = new DatabaseWriter(data);
+        
+        // Create NodeIds
         List<NodeId> nodeIds = new ArrayList<>();
         
         
@@ -72,6 +76,7 @@ public class Subscription extends ClientBase {
         
         client.connect().get();
         
+        // Create subscription and assign values to read
         UaSubscription subscription = client.getSubscriptionManager().createSubscription(1000).get();
 
         List<ReadValueId> readValueIds = new ArrayList<>();
@@ -80,7 +85,7 @@ public class Subscription extends ClientBase {
             readValueIds.add(new ReadValueId(nodeId, AttributeId.Value.uid(), null, QualifiedName.NULL_VALUE));
         }
                 
-        UInteger clientHandle = uint(clientHandles.getAndIncrement());
+        /*UInteger clientHandle = uint(clientHandles.getAndIncrement());
         
         MonitoringParameters parameters = new MonitoringParameters(
                 clientHandle,
@@ -88,27 +93,32 @@ public class Subscription extends ClientBase {
                 null,
                 uint(10),
                 true
-        );
+        );*/
         
         List<MonitoredItemCreateRequest> requests = new ArrayList<>();
         
         for (ReadValueId readValueId : readValueIds) {
+            UInteger clientHandle = uint(clientHandles.getAndIncrement());
+
+            MonitoringParameters parameters = new MonitoringParameters(
+                    clientHandle,
+                    1000.0, // Monitoring frequency, maybe add a parameter?
+                    null,
+                    uint(10),
+                    true
+            );
+            
             requests.add(new MonitoredItemCreateRequest(readValueId, MonitoringMode.Reporting, parameters));
         }
         
         
-        BiConsumer<UaMonitoredItem, Integer> onItemCreated = 
-                (item, pId) -> item.setValueConsumer(this::onSubscriptionValue);
-        
-        BiConsumer<UaMonitoredItem, Integer> asd = new BiConsumer<UaMonitoredItem, Integer>() {
-            @Override
-            public void accept(UaMonitoredItem t, Integer u) {
-
-            }
-        };
-        
-        
+        BiConsumer<UaMonitoredItem, Integer> onItemCreated = (item, pId) -> item.setValueConsumer(this::onSubscriptionValue);
+ 
         List<UaMonitoredItem> items = subscription.createMonitoredItems(TimestampsToReturn.Both, requests, onItemCreated).get();
+        
+        /// Start database writer
+        Thread writerThread = new Thread(writer);
+        writerThread.start();
         
         for (UaMonitoredItem item : items) {
             if(item.getStatusCode().isGood()) {
@@ -141,24 +151,14 @@ public class Subscription extends ClientBase {
             throw new IllegalArgumentException("ID type is not recognized! (" + idType + ")");
         }
         
-        DatabaseWriter writer = new DatabaseWriter(data);
-        writer.setType(description.getType());
-        writer.setTableName(data.getDc().getTableName());
-        writer.setFieldName(description.getDbField());
-        
-        Thread writerThread = new Thread(writer);
-        writerThread.start();
-        
-        databaseWriters.put(node.getIdentifier(), writer);
-        
+        writer.addDescriptor(node, description);        
         return node;
     }
     
-    private void onSubscriptionValue(UaMonitoredItem item, DataValue dataValue) {
-         DatabaseWriter writer = databaseWriters.get(item.getReadValueId().getNodeId().getIdentifier());
-         
-         writer.addData(dataValue.getValue().getValue().toString());
+    private void onSubscriptionValue(UaMonitoredItem item, DataValue dataValue) {         
+         writer.addData(item.getReadValueId().getNodeId(), dataValue.getValue().getValue().toString());
          logger.info("subscription value recieved: item={} value={}", item.getReadValueId().getNodeId(), dataValue.getValue().getValue());
+         
     }
 
     public void setDescriptions(List<Descriptor> descriptions) {

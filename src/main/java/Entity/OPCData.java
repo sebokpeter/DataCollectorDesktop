@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package Entity;
 
 import java.io.Serializable;
@@ -18,7 +13,7 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- *
+ * Represent data that can be used to connect to an OPC-UA server.
  * @author Peter
  */
 @Entity
@@ -41,18 +36,18 @@ public class OPCData implements Serializable {
     @Column(name = "ID")
     private Integer id;
     @Basic(optional = false)
-    @Column(name = "URL")
-    private String url;
+    @Column(name = "URL") 
+    private String url; // URL of the OPC-UA server
     @Basic(optional = false)
     @Column(name = "ANON")
-    private Boolean anon;
+    private Boolean anon; // Whether or not we can connect anonimously
     @Column(name = "USERNAME")
-    private String username;
+    private String username; // Username to connect to the OPC-UA server (if can't connect anonimusly)
     @Column(name = "PASSWORD")
-    private String password;
+    private String password; // Password to connet to the OPC-UA server (if can't connect anonimusly)
     @Basic(optional = false)
     @Column(name = "NAME")
-    private String name;
+    private String name; // Identifying name
 
     public OPCData() {
     }

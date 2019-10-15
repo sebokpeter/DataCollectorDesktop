@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package Entity;
 
 import java.io.Serializable;
@@ -20,7 +15,8 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- *
+ * Represents data that can be used to save data from an OPC-UA server into a database
+ * TODO: find a better name
  * @author Peter
  */
 @Entity
@@ -46,22 +42,22 @@ public class Descriptor implements Serializable {
     private Long id;
     @Basic(optional = false)
     @Column(name = "D_ID")
-    private int dId;
+    private int dId; // Connection to the DESCRIPTOR_CONN table
     @Basic(optional = false)
     @Column(name = "DB_FIELD")
-    private String dbField;
+    private String dbField; // Field name in the target database (unused)
     @Basic(optional = false)
     @Column(name = "TYPE")
     @Enumerated(EnumType.STRING)
-    private DatabaseFieldType type;
+    private DatabaseFieldType type; // Field type in the target database
     @Column(name = "ITEMORDER")
-    private Integer itemorder;
+    private Integer itemorder; // Order in the target database (unused)
     @Column(name = "NAMESPACE")
-    private Integer namespace;
+    private Integer namespace; // OPC-UA server namespace
     @Column(name = "NODEID")
-    private String nodeid;
-    @Column(name = "NODEID_TYPE")
-    private String nodeidType;
+    private String nodeid; // OPC-UA server NodeID
+    @Column(name = "NODEID_TYPE") 
+    private String nodeidType; // OPC-UA server NodeID type
 
     public Descriptor() {
     }

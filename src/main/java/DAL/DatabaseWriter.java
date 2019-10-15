@@ -1,18 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package DAL;
 
 import Entity.DatabaseFieldType;
 import Entity.Descriptor;
 import Entity.SQLData;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.EntityManager;
@@ -26,7 +22,7 @@ import org.eclipse.persistence.config.PersistenceUnitProperties;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * Writes data read from an OPC-UA server to MSSQL database.
  * @author Peter
  */
 public class DatabaseWriter implements Runnable, MSSQLConnectionInterface{
@@ -35,15 +31,15 @@ public class DatabaseWriter implements Runnable, MSSQLConnectionInterface{
     private final Logger jdbcLogger = Logger.getLogger("com.microsoft.sqlserver.jdbc");
     
     
-    private static final String PERSISTENCE_NAME = "MSSQLManager";
-    private final Map properties;
+    private static final String PERSISTENCE_NAME = "MSSQLManager"; // Persistence name in persistence.xml
+    private final Map properties; // Properties for connecting to a database
     private final EntityManagerFactory factory;
     private final EntityManager manager;
     
-    private ConcurrentLinkedHashMap<NodeId, String> data;
-    private ConcurrentHashMap<NodeId, Descriptor> descriptors;
+    private ConcurrentLinkedHashMap<NodeId, String> data; // Store data associated with its "origin" NodeId
+    private ConcurrentHashMap<NodeId, Descriptor> descriptors; // Associate NodeIds with their descriptors
     
-    private boolean terminate = false;
+    private AtomicBoolean terminate = new AtomicBoolean(false);
     
     private String query;
     private String tableName;
@@ -78,13 +74,12 @@ public class DatabaseWriter implements Runnable, MSSQLConnectionInterface{
     
     @Override
     public void run() {
-
-        while (!terminate) {            
-            if(data.isEmpty()) {
+        while (!terminate.get()) {            
+            if(data.isEmpty()) { 
                 continue;
             }
             
-            Map.Entry<NodeId, String> entry = data.entrySet().iterator().next();
+            Map.Entry<NodeId, String> entry = data.entrySet().iterator().next(); // Retrieve data entry
             NodeId node = entry.getKey();
             String getData = entry.getValue();
             
@@ -95,36 +90,28 @@ public class DatabaseWriter implements Runnable, MSSQLConnectionInterface{
             String fieldName = desc.getDbField();
             DatabaseFieldType type = desc.getType();
             
-            query = String.format("INSERT INTO %s (%s) VALUES (?)", tableName, fieldName);
+            // Create query
+            query = String.format("INSERT INTO %s (DESCRIPTOR_ID, NODE_ID, VALUE_TYPE, VALUE, TIMESTAMP) VALUES (%s, '%s', '%s', ?, ?)", tableName, desc.getDId(), desc.getNodeid(), desc.getType().toString());
             
             manager.getTransaction().begin();
             Query q = manager.createNativeQuery(query);
-            switch(type) {
-                case STRING:
-                    saveString(getData, q);
-                    break;
-                case REAL:
-                    saveReal(getData, q);
-                    break;
-                case INTEGER:
-                    saveInt(getData, q);
-                    break;
-                case BOOLEAN:
-                    saveBoolean(getData, q);
-                    break;
-                default:
-                    logger.error("Data type not recognized ({}), stopping writer.", type);
-                    stop();
-            }
+          
+            q.setParameter(1, getData);
+            q.setParameter(2, new Timestamp(new Date().getTime()));
+            
             int executeUpdate = q.executeUpdate();
-            logger.info("Rows modified: {}", executeUpdate);
+            if(executeUpdate != 1) {
+                logger.error("Unable to insert value {} - {} to database", getData, type);
+            }
             manager.getTransaction().commit();
         }
     }
 
     
     public void stop() {
-        this.terminate = true;
+        logger.info("Stopping database writer");
+        this.terminate.set(true);
+        manager.close();
     }
     
     public void addData(NodeId node, String input) {
@@ -132,25 +119,6 @@ public class DatabaseWriter implements Runnable, MSSQLConnectionInterface{
         logger.info("Value added: {}", input);
     }
 
-    private void saveString(String data, Query q) {
-        q.setParameter(1, data);
-    }
-
-    private void saveReal(String data,  Query q) {
-        double d = Double.parseDouble(data);
-        q.setParameter(1, d);
-    }
-
-    private void saveInt(String data,  Query q) {
-        int d = Integer.parseInt(data);
-        q.setParameter(1, d);
-    }
-
-    private void saveBoolean(String data,  Query q) {
-        boolean b = Boolean.getBoolean(data);
-        q.setParameter(1, b);
-    }
-    
     public void addDescriptor(NodeId node, Descriptor desc) {
         this.descriptors.put(node, desc);
     }

@@ -1,17 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package BLL.OPC;
 
 import DAL.DatabaseWriter;
 import Entity.Descriptor;
 import Entity.SQLData;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
@@ -120,6 +113,14 @@ public class Subscription extends ClientBase {
         Thread writerThread = new Thread(writer);
         writerThread.start();
         
+        // Shutdown hook, probably not working?
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                writer.stop();
+            }
+        });
+        
         for (UaMonitoredItem item : items) {
             if(item.getStatusCode().isGood()) {
                 logger.info("item created for nodeID={}", item.getReadValueId().getNodeId());
@@ -130,6 +131,11 @@ public class Subscription extends ClientBase {
     }
 
     
+    /**
+     * Creates NodeId (used for subscribing) from data in a descriptor.
+     * @param description Data to create the NodeId
+     * @return The created NodeID.
+     */
     private NodeId createNodeId(Descriptor description) {
         NodeId node = null;
         

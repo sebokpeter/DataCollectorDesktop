@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package Entity;
 
 import java.io.Serializable;
@@ -20,7 +15,7 @@ import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- *
+ * Represent data that can be used to connect to an MSSQL server.
  * @author Peter
  */
 @Entity
@@ -44,17 +39,17 @@ public class SQLData implements Serializable {
     @Column(name = "ID")
     private Integer id;
     @Column(name = "NAME")
-    private String name;
+    private String name; // Username used to connect to the MSSQL server
     @Column(name = "PASSWORD")
-    private String password;
+    private String password; // Password used to connect to the MSSQL server
     @Column(name = "DB_NAME")
-    private String dbName;
+    private String dbName; // MSSQL database name
     @Column(name = "DB_ADDRESS")
-    private String dbAddress;
+    private String dbAddress; // MSSQL database address
     @Column(name = "DB_PORT")
-    private Integer dbPort;
+    private Integer dbPort; // MSSQL database port
     @Column(name = "D_ID")
-    private Integer dId;
+    private Integer dId; // Connection to the DESCRIPTOR_CONN table
     
     @Transient
     private DescriptorConn dc;

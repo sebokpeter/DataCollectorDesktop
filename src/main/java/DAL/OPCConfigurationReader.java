@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package DAL;
 
 import Entity.OPCData;
@@ -13,7 +8,7 @@ import javax.persistence.Persistence;
 import javax.persistence.Query;
 
 /**
- *
+ * Responsible for reading SQL configuration information from the H2 database
  * @author Peter
  */
 public class OPCConfigurationReader implements OPCConfigurationReaderInterface {

@@ -4,3 +4,5 @@
 *.jar
 *.lst
 *.class
+target/test-classes/.netbeans_automatic_build
+target/classes/.netbeans_automatic_build

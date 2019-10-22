@@ -15,8 +15,10 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Represents data that can be used to save data from an OPC-UA server into a database
+ * Represents data that can be used to save data from an OPC-UA server into a
+ * database
  * TODO: find a better name
+ *
  * @author Peter
  */
 @Entity
@@ -26,9 +28,7 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Descriptor.findAll", query = "SELECT d FROM Descriptor d"),
     @NamedQuery(name = "Descriptor.findById", query = "SELECT d FROM Descriptor d WHERE d.id = :id"),
     @NamedQuery(name = "Descriptor.findByDId", query = "SELECT d FROM Descriptor d WHERE d.dId = :dId"),
-    @NamedQuery(name = "Descriptor.findByDbField", query = "SELECT d FROM Descriptor d WHERE d.dbField = :dbField"),
     @NamedQuery(name = "Descriptor.findByType", query = "SELECT d FROM Descriptor d WHERE d.type = :type"),
-    @NamedQuery(name = "Descriptor.findByItemorder", query = "SELECT d FROM Descriptor d WHERE d.itemorder = :itemorder"),
     @NamedQuery(name = "Descriptor.findByNamespace", query = "SELECT d FROM Descriptor d WHERE d.namespace = :namespace"),
     @NamedQuery(name = "Descriptor.findByNodeid", query = "SELECT d FROM Descriptor d WHERE d.nodeid = :nodeid"),
     @NamedQuery(name = "Descriptor.findByNodeidType", query = "SELECT d FROM Descriptor d WHERE d.nodeidType = :nodeidType")})
@@ -44,19 +44,14 @@ public class Descriptor implements Serializable {
     @Column(name = "D_ID")
     private int dId; // Connection to the DESCRIPTOR_CONN table
     @Basic(optional = false)
-    @Column(name = "DB_FIELD")
-    private String dbField; // Field name in the target database (unused)
-    @Basic(optional = false)
     @Column(name = "TYPE")
     @Enumerated(EnumType.STRING)
     private DatabaseFieldType type; // Field type in the target database
-    @Column(name = "ITEMORDER")
-    private Integer itemorder; // Order in the target database (unused)
     @Column(name = "NAMESPACE")
     private Integer namespace; // OPC-UA server namespace
     @Column(name = "NODEID")
     private String nodeid; // OPC-UA server NodeID
-    @Column(name = "NODEID_TYPE") 
+    @Column(name = "NODEID_TYPE")
     private String nodeidType; // OPC-UA server NodeID type
 
     public Descriptor() {
@@ -66,11 +61,10 @@ public class Descriptor implements Serializable {
         this.id = id;
     }
 
-    public Descriptor(Long id, int dId, String dbField, String type) {
+    public Descriptor(Long id, int dId, String type) {
         this.id = id;
         this.dId = dId;
-        this.dbField = dbField;
-        type.toUpperCase();
+        type = type.toUpperCase();
         this.type = DatabaseFieldType.valueOf(type);
     }
 
@@ -90,29 +84,13 @@ public class Descriptor implements Serializable {
         this.dId = dId;
     }
 
-    public String getDbField() {
-        return dbField;
-    }
-
-    public void setDbField(String dbField) {
-        this.dbField = dbField;
-    }
-
     public DatabaseFieldType getType() {
         return type;
     }
 
     public void setType(String type) {
-        type.toUpperCase();
+        type = type.toUpperCase();
         this.type = DatabaseFieldType.valueOf(type);
-    }
-
-    public Integer getItemorder() {
-        return itemorder;
-    }
-
-    public void setItemorder(Integer itemorder) {
-        this.itemorder = itemorder;
     }
 
     public Integer getNamespace() {
@@ -153,15 +131,12 @@ public class Descriptor implements Serializable {
             return false;
         }
         Descriptor other = (Descriptor) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
+        return !((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id)));
     }
 
     @Override
     public String toString() {
         return "Entity.Descriptor[ id=" + id + " ]";
     }
-    
+
 }

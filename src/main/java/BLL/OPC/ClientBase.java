@@ -13,15 +13,16 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Base class for OPC-UA client
+ *
  * @author Peter
  */
 public abstract class ClientBase {
-    
+
     private String url;
     private String username;
     private String password;
     private boolean anonymousIdentity;
-    
+
     private Logger logger = LoggerFactory.getLogger(ClientExample.class);
 
     public ClientBase(String url, String username, String password) {
@@ -52,35 +53,34 @@ public abstract class ClientBase {
         this.password = password;
     }
 
-    
     public String getEndpointURL() {
-        if(url == null) {
+        if (url == null) {
             throw new NullPointerException("URL is not set!");
         }
         return url;
     }
-    
+
     public SecurityPolicy getSecurityPolicy() {
         //return SecurityPolicy.Basic256Sha256;
         return SecurityPolicy.None;
     }
-    
+
     public MessageSecurityMode getMessageSecurityMode() {
         //return MessageSecurityMode.SignAndEncrypt;
         return MessageSecurityMode.None;
     }
-    
+
     public IdentityProvider getIdentityProvider() {
         if (anonymousIdentity) {
             return new AnonymousProvider();
         } else {
-            if(username == null || password == null) {
+            if (username == null || password == null) {
                 throw new NullPointerException("Username or Password has not been provided!");
             }
             return new UsernameProvider(username, password);
         }
     }
-    
+
     abstract void run(OpcUaClient client, CompletableFuture<OpcUaClient> future) throws Exception;
 
 }

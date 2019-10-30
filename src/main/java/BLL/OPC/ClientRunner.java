@@ -26,19 +26,15 @@ import org.slf4j.LoggerFactory;
  */
 public class ClientRunner {
 
+    private final String APPLICATION_NAME = "Seacon Test Client";
+    private final String APPLICATION_URI = "urn:eclipse:milo:examples:client";
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final CompletableFuture<OpcUaClient> future = new CompletableFuture<>();
+    private final ClientBase clientExample;
+    
     static {
         Security.addProvider(new BouncyCastleProvider());
     }
-
-    private final String APPLICATION_NAME = "Seacon Test Client";
-
-    private final String APPLICATION_URI = "urn:eclipse:milo:examples:client";
-
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-
-    private final CompletableFuture<OpcUaClient> future = new CompletableFuture<>();
-
-    private final ClientBase clientExample;
 
     public ClientRunner(ClientBase clientExample) {
         this.clientExample = clientExample;

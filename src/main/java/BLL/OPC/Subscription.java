@@ -33,13 +33,10 @@ import org.slf4j.LoggerFactory;
 public class Subscription extends ClientBase {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
-
     private final AtomicLong clientHandles = new AtomicLong(1L);
-
     private List<Descriptor> descriptions;
     private SQLData data;
-
-    DatabaseWriter writer;
+    private DatabaseWriter writer;
 
     public Subscription(String url, String username, String password) {
         super(url, username, password);
@@ -47,10 +44,6 @@ public class Subscription extends ClientBase {
 
     public Subscription(String url, boolean anonymousIdentity) {
         super(url, anonymousIdentity);
-    }
-
-    public void setData(SQLData data) {
-        this.data = data;
     }
 
     @Override
@@ -77,15 +70,6 @@ public class Subscription extends ClientBase {
             readValueIds.add(new ReadValueId(nodeId, AttributeId.Value.uid(), null, QualifiedName.NULL_VALUE));
         }
 
-        /*UInteger clientHandle = uint(clientHandles.getAndIncrement());
-        
-        MonitoringParameters parameters = new MonitoringParameters(
-                clientHandle,
-                1000.0, // Monitoring frequency, maybe add a parameter?
-                null,
-                uint(10),
-                true
-        );*/
         List<MonitoredItemCreateRequest> requests = new ArrayList<>();
 
         for (ReadValueId readValueId : readValueIds) {
@@ -140,18 +124,20 @@ public class Subscription extends ClientBase {
         String id = description.getNodeid();
         int namespace = description.getNamespace();
 
-        if (idType.equals("int")) {
-            if (!Utils.Utility.isInteger(id)) {
-                logger.error("The ID can not be parsed to an integer! ({})", id);
-                throw new IllegalArgumentException("The ID can not be parsed to an integer!");
-            }
-
-            node = new NodeId(namespace, Integer.parseInt(id));
-        } else if (idType.equals("string")) {
-            node = new NodeId(namespace, id);
-        } else {
-            logger.error("ID type is not recognized! ({})", idType);
-            throw new IllegalArgumentException("ID type is not recognized! (" + idType + ")");
+        switch (idType) {
+            case "int":
+                if (!Utils.Utility.isInteger(id)) {
+                    logger.error("The ID can not be parsed to an integer! ({})", id);
+                    throw new IllegalArgumentException("The ID can not be parsed to an integer!");
+                }
+                node = new NodeId(namespace, Integer.parseInt(id));
+                break;
+            case "string":
+                node = new NodeId(namespace, id);
+                break;
+            default:
+                logger.error("ID type is not recognized! ({})", idType);
+                throw new IllegalArgumentException("ID type is not recognized! (" + idType + ")");
         }
 
         writer.addDescriptor(node, description);
@@ -159,11 +145,15 @@ public class Subscription extends ClientBase {
     }
 
     private void onSubscriptionValue(UaMonitoredItem item, DataValue dataValue) {
-        writer.addData(item.getReadValueId().getNodeId(), dataValue.getValue().getValue().toString());
+        writer.addData(item.getReadValueId().getNodeId(), dataValue);
         logger.info("subscription value recieved: item={} value={}", item.getReadValueId().getNodeId(), dataValue.getValue().getValue());
     }
 
     public void setDescriptions(List<Descriptor> descriptions) {
         this.descriptions = descriptions;
+    }
+
+    public void setData(SQLData data) {
+        this.data = data;
     }
 }

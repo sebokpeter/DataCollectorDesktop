@@ -14,15 +14,13 @@ import java.util.List;
  */
 public class SubscriptionManager {
 
-    private OPCData opcData;
-    private SQLData sqlData;
-
+    private final OPCData opcData;
+    private final SQLData sqlData;
     private Subscription subscription;
 
     public SubscriptionManager(OPCData opcData, SQLData sqlData) {
         this.opcData = opcData;
         this.sqlData = sqlData;
-
     }
 
     public void startMonitoring() {

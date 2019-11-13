@@ -16,6 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Represent data that can be used to connect to an MSSQL server.
+ *
  * @author Peter
  */
 @Entity
@@ -50,12 +51,12 @@ public class SQLData implements Serializable {
     private Integer dbPort; // MSSQL database port
     @Column(name = "D_ID")
     private Integer dId; // Connection to the DESCRIPTOR_CONN table
-    
+
     @Transient
     private DescriptorConn dc;
     @Transient
     private List<Descriptor> descriptors;
-    
+
     public SQLData() {
     }
 
@@ -134,7 +135,7 @@ public class SQLData implements Serializable {
     public void setDescriptors(List<Descriptor> descriptors) {
         this.descriptors = descriptors;
     }
-    
+
     @Override
     public int hashCode() {
         int hash = 0;
@@ -149,15 +150,12 @@ public class SQLData implements Serializable {
             return false;
         }
         SQLData other = (SQLData) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
+        return !((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id)));
     }
 
     @Override
     public String toString() {
         return "Entity.Sqldata[ id=" + id + " ]";
     }
-    
+
 }

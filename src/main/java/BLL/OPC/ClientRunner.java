@@ -19,51 +19,46 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Adopted from: https://github.com/eclipse/milo/blob/master/milo-examples/standalone-examples/src/main/java/org/eclipse/milo/examples/client/SecureClientStandaloneRunner.java
+ * Adopted from:
+ * https://github.com/eclipse/milo/blob/master/milo-examples/standalone-examples/src/main/java/org/eclipse/milo/examples/client/SecureClientStandaloneRunner.java
+ *
  * @author Peter
  */
 public class ClientRunner {
+
+    private final String APPLICATION_NAME = "Seacon Test Client";
+    private final String APPLICATION_URI = "urn:eclipse:milo:examples:client";
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final CompletableFuture<OpcUaClient> future = new CompletableFuture<>();
+    private final ClientBase clientExample;
     
     static {
         Security.addProvider(new BouncyCastleProvider());
     }
-    
-    private final String APPLICATION_NAME = "Seacon Test Client";
-    
-    private final String APPLICATION_URI = "urn:eclipse:milo:examples:client";
-
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-    
-    private final CompletableFuture<OpcUaClient> future = new CompletableFuture<>();
-    
-    private final ClientBase clientExample;
 
     public ClientRunner(ClientBase clientExample) {
         this.clientExample = clientExample;
     }
-    
+
     private OpcUaClient createClient() throws Exception {
-        //String discoveryURL = clientExample.getDiscoveryUlr();
-        
-        //String discoveryURL = clientExample.getEndPointURL();
-        //logger.info("URL of the discovery endpoint: {}", discoveryURL);
-        
-        //List<EndpointDescription> endpoints = DiscoveryClient.getEndpoints(discoveryURL).get();
-        
-       /* logger.info("Available endpoints: ");
+        /*
+        String discoveryURL = clientExample.getDiscoveryUlr();
+
+        String discoveryURL = clientExample.getEndPointURL();
+        logger.info("URL of the discovery endpoint: {}", discoveryURL);
+        List<EndpointDescription> endpoints = DiscoveryClient.getEndpoints(discoveryURL).get();
+         logger.info("Available endpoints: ");
         for (EndpointDescription endpoint : endpoints) {
             logger.info(endpoint.getEndpointUrl() + " " + endpoint.getSecurityPolicyUri());
         }
-
         */
-       
+        
         List<EndpointDescription> endpoints = DiscoveryClient.getEndpoints(clientExample.getEndpointURL()).get();
         EndpointDescription endpoint = endpoints.stream()
                 .filter(e -> e.getSecurityPolicyUri().equals(clientExample.getSecurityPolicy().getUri())).findFirst().orElseThrow(() -> new Exception("no desired endpoints returned"));
-                
-       
+
         logger.info("Using endpoint: {} [{}, {}]", clientExample.getEndpointURL(), endpoint.getSecurityPolicyUri(), endpoint.getSecurityMode());
-        
+
         OpcUaClientConfig config = OpcUaClientConfig.builder()
                 .setApplicationName(LocalizedText.english(APPLICATION_NAME))
                 .setApplicationUri(APPLICATION_URI)
@@ -73,30 +68,30 @@ public class ClientRunner {
                 .setIdentityProvider(clientExample.getIdentityProvider())
                 .setRequestTimeout(uint(5000))
                 .build();
-        
+
         return OpcUaClient.create(config);
     }
 
     private EndpointDescription chooseEndpoint(List<EndpointDescription> endpoints, SecurityPolicy minSecurityPolicy, MessageSecurityMode minMessageSecurityMode) {
-        EndpointDescription bestFound = null; 
+        EndpointDescription bestFound = null;
         SecurityPolicy bestSecurityPolicy = null;
-        
+
         for (EndpointDescription endpoint : endpoints) {
             SecurityPolicy endpintSecurityPolicy;
-            
+
             try {
                 endpintSecurityPolicy = SecurityPolicy.fromUri(endpoint.getSecurityPolicyUri());
             } catch (UaException ex) {
                 continue;
             }
-            
-            if(minSecurityPolicy.compareTo(endpintSecurityPolicy) <= 0) {
-                if(minMessageSecurityMode.compareTo(endpoint.getSecurityMode()) <= 0) {
-                    if(bestFound == null) {
+
+            if (minSecurityPolicy.compareTo(endpintSecurityPolicy) <= 0) {
+                if (minMessageSecurityMode.compareTo(endpoint.getSecurityMode()) <= 0) {
+                    if (bestFound == null) {
                         bestFound = endpoint;
                         bestSecurityPolicy = endpintSecurityPolicy;
                     } else {
-                        if(bestSecurityPolicy.compareTo(endpintSecurityPolicy) <= 0) {
+                        if (bestSecurityPolicy.compareTo(endpintSecurityPolicy) <= 0) {
                             bestFound = endpoint;
                             bestSecurityPolicy = endpintSecurityPolicy;
                         }
@@ -104,17 +99,17 @@ public class ClientRunner {
                 }
             }
         }
-        
+
         if (bestFound == null) {
             throw new RuntimeException("No desired endpoints returned!");
         }
-        
+
         return bestFound;
     }
 
     public void run() {
         future.whenComplete((client, ex) -> {
-            if(client != null) {
+            if (client != null) {
                 try {
                     client.disconnect().get();
                     Stack.releaseSharedResources();
@@ -126,29 +121,29 @@ public class ClientRunner {
                 logger.error("Error: {}", ex.getMessage(), ex);
                 Stack.releaseSharedResources();
             }
-            
-           /* try {
+
+            /* try {
                 Thread.sleep(1000);
                 System.exit(0);
             } catch (InterruptedException e) {
                 logger.error("Interruption exception: ", e);
             }*/
         });
-        
-        try { 
+
+        try {
             OpcUaClient client = createClient();
-            
+
             try {
                 clientExample.run(client, future);
 //                future.get(20, TimeUnit.SECONDS);
             } catch (Exception e) {
                 logger.error("Error runnig example: {}", e.getMessage(), e);
                 future.complete(client);
-            } 
+            }
         } catch (Exception e) {
             future.completeExceptionally(e);
         }
-        
+
         try {
             Thread.sleep(999999999);
         } catch (InterruptedException e) {

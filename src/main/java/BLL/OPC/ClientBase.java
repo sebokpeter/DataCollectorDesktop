@@ -1,6 +1,5 @@
 package BLL.OPC;
 
-import BLL.Test.ClientExample;
 import java.util.concurrent.CompletableFuture;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.identity.AnonymousProvider;
@@ -8,21 +7,18 @@ import org.eclipse.milo.opcua.sdk.client.api.identity.IdentityProvider;
 import org.eclipse.milo.opcua.sdk.client.api.identity.UsernameProvider;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.MessageSecurityMode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Base class for OPC-UA client
+ *
  * @author Peter
  */
 public abstract class ClientBase {
-    
-    private String url;
+
+    private final String url;
     private String username;
     private String password;
-    private boolean anonymousIdentity;
-    
-    private Logger logger = LoggerFactory.getLogger(ClientExample.class);
+    private final boolean anonymousIdentity;
 
     public ClientBase(String url, String username, String password) {
         this.url = url;
@@ -52,35 +48,34 @@ public abstract class ClientBase {
         this.password = password;
     }
 
-    
     public String getEndpointURL() {
-        if(url == null) {
+        if (url == null) {
             throw new NullPointerException("URL is not set!");
         }
         return url;
     }
-    
+
     public SecurityPolicy getSecurityPolicy() {
         //return SecurityPolicy.Basic256Sha256;
         return SecurityPolicy.None;
     }
-    
+
     public MessageSecurityMode getMessageSecurityMode() {
         //return MessageSecurityMode.SignAndEncrypt;
         return MessageSecurityMode.None;
     }
-    
+
     public IdentityProvider getIdentityProvider() {
         if (anonymousIdentity) {
             return new AnonymousProvider();
         } else {
-            if(username == null || password == null) {
+            if (username == null || password == null) {
                 throw new NullPointerException("Username or Password has not been provided!");
             }
             return new UsernameProvider(username, password);
         }
     }
-    
+
     abstract void run(OpcUaClient client, CompletableFuture<OpcUaClient> future) throws Exception;
 
 }

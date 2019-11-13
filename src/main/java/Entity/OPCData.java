@@ -14,6 +14,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Represent data that can be used to connect to an OPC-UA server.
+ *
  * @author Peter
  */
 @Entity
@@ -36,7 +37,7 @@ public class OPCData implements Serializable {
     @Column(name = "ID")
     private Integer id;
     @Basic(optional = false)
-    @Column(name = "URL") 
+    @Column(name = "URL")
     private String url; // URL of the OPC-UA server
     @Basic(optional = false)
     @Column(name = "ANON")
@@ -135,5 +136,5 @@ public class OPCData implements Serializable {
     public String toString() {
         return "Entity.OPCData[ id=" + id + " ]";
     }
-    
+
 }

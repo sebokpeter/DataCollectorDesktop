@@ -7,8 +7,9 @@ package DAL;
 
 /**
  * Responsible for connecting to the MS SQL database
+ *
  * @author Peter
  */
 public interface MSSQLConnectionInterface {
-       
+
 }

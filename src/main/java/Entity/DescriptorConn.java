@@ -14,6 +14,7 @@ import javax.persistence.Table;
 /**
  * Used to connect a group of descriptors
  * TODO: find a better name
+ *
  * @author Peter
  */
 @Entity
@@ -81,15 +82,12 @@ public class DescriptorConn implements Serializable {
             return false;
         }
         DescriptorConn other = (DescriptorConn) object;
-        if ((this.dId == null && other.dId != null) || (this.dId != null && !this.dId.equals(other.dId))) {
-            return false;
-        }
-        return true;
+        return !((this.dId == null && other.dId != null) || (this.dId != null && !this.dId.equals(other.dId)));
     }
 
     @Override
     public String toString() {
         return "Entity.DescriptorConn[ dId=" + dId + " ]";
     }
-    
+
 }

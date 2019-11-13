@@ -76,6 +76,6 @@ public abstract class ClientBase {
         }
     }
 
-    abstract void run(OpcUaClient client, CompletableFuture<OpcUaClient> future) throws Exception;
+    protected abstract void run(OpcUaClient client, CompletableFuture<OpcUaClient> future) throws Exception;
 
 }

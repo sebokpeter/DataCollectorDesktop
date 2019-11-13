@@ -1,5 +1,6 @@
-package BLL.OPC;
+package BLL.OPC.Subscription;
 
+import BLL.OPC.ClientBase;
 import DAL.IO.DatabaseWriter;
 import Entity.Descriptor;
 import Entity.SQLData;
@@ -26,30 +27,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Used to subscribe an OPC-UA node.
- *
+ * Contains the shared methods and fields that are common between the different Subscriptions
  * @author Peter
  */
-public class Subscription extends ClientBase {
-
+public abstract class SubscriptionBase extends ClientBase implements SubscriptionInterface {
+    
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final AtomicLong clientHandles = new AtomicLong(1L);
     private List<Descriptor> descriptions;
     private SQLData data;
     private DatabaseWriter writer;
 
-    public Subscription(String url, String username, String password) {
-        super(url, username, password);
-    }
-
-    public Subscription(String url, boolean anonymousIdentity) {
+    public SubscriptionBase(String url, boolean anonymousIdentity) {
         super(url, anonymousIdentity);
     }
 
+    public SubscriptionBase(String url, String username, String password) {
+        super(url, username, password);
+    }
+    
     @Override
-    void run(OpcUaClient client, CompletableFuture<OpcUaClient> future) throws Exception {
-
-        // Create database writer
+    protected void run(OpcUaClient client, CompletableFuture<OpcUaClient> future) throws Exception {
+    // Create database writer
         writer = new DatabaseWriter(data);
 
         // Create NodeIds
@@ -90,34 +89,21 @@ public class Subscription extends ClientBase {
 
         List<UaMonitoredItem> items = subscription.createMonitoredItems(TimestampsToReturn.Both, requests, onItemCreated).get();
 
-        /// Start database writer
-        Thread writerThread = new Thread(writer);
-        writerThread.start();
-
-        // Shutdown hook, probably not working?
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                writer.stop();
-            }
-        });
-
         for (UaMonitoredItem item : items) {
             if (item.getStatusCode().isGood()) {
                 logger.info("item created for nodeID={}", item.getReadValueId().getNodeId());
             } else {
                 logger.warn("failed to create item for nodeID={} (status={})", item.getReadValueId().getNodeId(), item.getStatusCode());
             }
-        }
+        }    
+        
+        /// Start database writer
+        Thread writerThread = new Thread(writer);
+        writerThread.start();
     }
 
-    /**
-     * Creates NodeId (used for subscribing) from data in a descriptor.
-     *
-     * @param description Data to create the NodeId
-     * @return The created NodeID.
-     */
-    private NodeId createNodeId(Descriptor description) {
+    @Override
+    public NodeId createNodeId(Descriptor description) {
         NodeId node = null;
 
         String idType = description.getNodeidType();
@@ -144,15 +130,18 @@ public class Subscription extends ClientBase {
         return node;
     }
 
-    private void onSubscriptionValue(UaMonitoredItem item, DataValue dataValue) {
+    @Override
+    public void onSubscriptionValue(UaMonitoredItem item, DataValue dataValue) {
         writer.addData(item.getReadValueId().getNodeId(), dataValue);
         logger.info("subscription value recieved: item={} value={}", item.getReadValueId().getNodeId(), dataValue.getValue().getValue());
     }
 
+    @Override
     public void setDescriptions(List<Descriptor> descriptions) {
         this.descriptions = descriptions;
     }
 
+    @Override
     public void setData(SQLData data) {
         this.data = data;
     }

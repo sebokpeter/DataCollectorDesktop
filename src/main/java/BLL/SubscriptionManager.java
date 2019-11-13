@@ -1,7 +1,9 @@
 package BLL;
 
+import BLL.OPC.ClientBase;
 import BLL.OPC.ClientRunner;
-import BLL.OPC.Subscription;
+import BLL.OPC.Subscription.SubscriptionFactory;
+import BLL.OPC.Subscription.SubscriptionInterface;
 import Entity.Descriptor;
 import Entity.OPCData;
 import Entity.SQLData;
@@ -16,37 +18,33 @@ public class SubscriptionManager {
 
     private final OPCData opcData;
     private final SQLData sqlData;
-    private Subscription subscription;
-
+    private final SubscriptionFactory factory;
+    
     public SubscriptionManager(OPCData opcData, SQLData sqlData) {
         this.opcData = opcData;
         this.sqlData = sqlData;
+        
+        this.factory = new SubscriptionFactory();
     }
 
-    public void startMonitoring() {
-        createSubscriptions();
+    public void startMonitoring() throws Exception {
+        SubscriptionInterface sub = createSubscription();
 
-        new ClientRunner(subscription).run();
+        new ClientRunner((ClientBase) sub).run();
     }
 
     /**
      * Create a subscription from descriptors.
      */
-    private void createSubscriptions() {
+    private SubscriptionInterface createSubscription() throws Exception {
         List<Descriptor> descriptors = sqlData.getDescriptors();
-        String url = opcData.getUrl();
 
-        if (opcData.getAnon()) {
-            subscription = new Subscription(url, true);
-        } else {
-            String name = opcData.getUsername();
-            String pass = opcData.getPassword();
-
-            subscription = new Subscription(url, name, pass);
-        }
+        SubscriptionInterface subscription = factory.createSubscription(opcData);
 
         subscription.setData(sqlData);
         subscription.setDescriptions(descriptors);
+        
+        return subscription;
     }
 
 }

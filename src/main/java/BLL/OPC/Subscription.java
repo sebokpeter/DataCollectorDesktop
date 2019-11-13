@@ -1,6 +1,6 @@
 package BLL.OPC;
 
-import DAL.DatabaseWriter;
+import DAL.IO.DatabaseWriter;
 import Entity.Descriptor;
 import Entity.SQLData;
 import java.util.ArrayList;

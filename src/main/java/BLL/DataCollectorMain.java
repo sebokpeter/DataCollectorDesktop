@@ -1,10 +1,7 @@
 package BLL;
 
-import DAL.MSSQLConnectionInterface;
-import DAL.OPCConfigurationReader;
-import DAL.OPCConfigurationReaderInterface;
-import DAL.SQLConfigurationReader;
-import DAL.SQLConfigurationReaderInterface;
+import DAL.DataAccessManager;
+import DAL.Interfaces.DataAccessInterface;
 import Entity.OPCData;
 import Entity.SQLData;
 import Utils.Utility;
@@ -19,9 +16,7 @@ import org.apache.log4j.BasicConfigurator;
  */
 public class DataCollectorMain {
 
-    private static SQLConfigurationReaderInterface sqlConfReader;
-    private static OPCConfigurationReaderInterface opcConfReader;
-    private static MSSQLConnectionInterface dataReader;
+    private static DataAccessInterface datamanager;
 
     public static void main(String[] args) throws Exception {
 
@@ -31,6 +26,8 @@ public class DataCollectorMain {
         int sqlId = 80;//ids[0];
         int opcId = 34;//ids[1];
 
+        datamanager = new DataAccessManager();
+        
         SQLData data = getSqlData(sqlId);
         OPCData opcData = getOpcData(opcId);
 
@@ -46,12 +43,10 @@ public class DataCollectorMain {
      * @return The configuration with the given ID.
      */
     private static SQLData getSqlData(int id) throws Exception {
-        sqlConfReader = new SQLConfigurationReader();
-
         SQLData data = null;
 
         try {
-            data = sqlConfReader.getConfig(id);
+            data = datamanager.getSQLConfigById(id);
         } catch (Exception ex) {
             Logger.getLogger(DataCollectorMain.class.getName()).log(Level.SEVERE, null, ex);
             System.exit(1);
@@ -67,23 +62,21 @@ public class DataCollectorMain {
     /**
      * Return the OPC connection configuration with the given ID.
      *
-     * @param opcId The ID of the configuration.
+     * @param id The ID of the configuration.
      * @return The configuration with the given ID.
      */
-    private static OPCData getOpcData(int opcId) throws Exception {
-        opcConfReader = new OPCConfigurationReader();
-
+    private static OPCData getOpcData(int id) throws Exception {
         OPCData data = null;
 
         try {
-            data = opcConfReader.getOPCDataByID(opcId);
+            data = datamanager.getOPCConfigById(id);
         } catch (Exception ex) {
             Logger.getLogger(DataCollectorMain.class.getName()).log(Level.SEVERE, null, ex);
             System.exit(1);
         }
 
         if (data == null) {
-            throw new Exception(String.format("Could not retrieve configuration with the ID of %d", opcId));
+            throw new Exception(String.format("Could not retrieve configuration with the ID of %d", id));
         }
 
         return data;
@@ -100,12 +93,12 @@ public class DataCollectorMain {
             throw new IllegalArgumentException("Invalid number of arguments supplied! (" + args.length + ")");
         }
 
-        String idParam = args[0];
+        String sqlParam = args[0];
         int id;
 
         // Convert the parameter to a number
-        if (Utility.isInteger(idParam)) {
-            id = Integer.parseInt(idParam);
+        if (Utility.isInteger(sqlParam)) {
+            id = Integer.parseInt(sqlParam);
         } else {
             throw new IllegalArgumentException("Argument must be a number!");
         }
@@ -132,5 +125,5 @@ public class DataCollectorMain {
 
         return new int[]{id, opcid};
     }
-    
+
 }

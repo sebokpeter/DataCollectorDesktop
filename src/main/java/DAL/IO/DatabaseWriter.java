@@ -1,4 +1,4 @@
-package DAL;
+package DAL.IO;
 
 import Entity.DatabaseFieldType;
 import Entity.Descriptor;
@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Peter
  */
-public class DatabaseWriter implements Runnable, MSSQLConnectionInterface {
+public class DatabaseWriter implements Runnable {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(getClass());
     private static final Logger jdbcLogger = Logger.getLogger("com.microsoft.sqlserver.jdbc");

@@ -1,5 +1,6 @@
-package DAL;
+package DAL.IO;
 
+import DAL.Interfaces.SQLConfigurationReaderInterface;
 import Entity.Descriptor;
 import Entity.DescriptorConn;
 import Entity.SQLData;
@@ -25,7 +26,7 @@ public class SQLConfigurationReader implements SQLConfigurationReaderInterface {
     }
 
     @Override
-    public SQLData getConfig(int id) throws Exception {
+    public SQLData getConfigById(int id) throws Exception {
 
         EntityManager manager = factory.createEntityManager();
 
@@ -43,11 +44,9 @@ public class SQLConfigurationReader implements SQLConfigurationReaderInterface {
         SQLData sqlData = data.get(0);
 
         Query q2 = manager.createNamedQuery("DescriptorConn.findByDId").setParameter("dId", sqlData.getDId());
-
         sqlData.setDc((DescriptorConn) q2.getResultList().get(0));
 
         Query q3 = manager.createNamedQuery("Descriptor.findByDId").setParameter("dId", sqlData.getDId());
-
         sqlData.setDescriptors((List<Descriptor>) q3.getResultList());
 
         return sqlData;

@@ -1,0 +1,11 @@
+-------------------------------------------------------------------------------
+Test set: DAL.SQLConfigurationReaderTest
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 140.166 sec <<< FAILURE!
+DAL.SQLConfigurationReaderTest.testGetAllConfigs()  Time elapsed: 1.639 sec  <<< FAILURE!
+java.lang.IllegalArgumentException: NamedQuery of name: Sqldata.findAll not found.
+	at org.eclipse.persistence.internal.jpa.QueryImpl.getDatabaseQueryInternal(QueryImpl.java:364)
+	at org.eclipse.persistence.internal.jpa.EntityManagerImpl.createNamedQuery(EntityManagerImpl.java:1239)
+	at DAL.SQLConfigurationReader.getAllConfigs(SQLConfigurationReader.java:60)
+	at DAL.SQLConfigurationReaderTest.testGetAllConfigs(SQLConfigurationReaderTest.java:62)
+

@@ -1,5 +1,6 @@
-package DAL;
+package DAL.IO;
 
+import DAL.Interfaces.OPCConfigurationReaderInterface;
 import Entity.OPCData;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -23,11 +24,10 @@ public class OPCConfigurationReader implements OPCConfigurationReaderInterface {
     }
 
     @Override
-    public OPCData getOPCDataByID(int id) throws Exception {
+    public OPCData getConfigById(int id) throws Exception {
         EntityManager manager = factory.createEntityManager();
 
         Query q = manager.createNamedQuery("OPCData.findById").setParameter("id", id);
-
         List<OPCData> result = q.getResultList();
 
         if (result.isEmpty()) {
@@ -42,7 +42,7 @@ public class OPCConfigurationReader implements OPCConfigurationReaderInterface {
     }
 
     @Override
-    public List<OPCData> getAllOPCData() {
+    public List<OPCData> getAllConfigs() {
         EntityManager manager = factory.createEntityManager();
 
         Query q = manager.createNamedQuery("OPCData.findAll");

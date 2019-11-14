@@ -22,9 +22,9 @@ public class DataCollectorMain {
 
         BasicConfigurator.configure();
 
-        //int ids[] = processArgument(args);
-        int sqlId = 80;//ids[0];
-        int opcId = 34;//ids[1];
+        int ids[] = processArgument(args);
+        int sqlId = ids[0];
+        int opcId = ids[1];
 
         datamanager = new DataAccessManager();
         

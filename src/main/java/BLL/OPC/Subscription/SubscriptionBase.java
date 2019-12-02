@@ -2,6 +2,7 @@ package BLL.OPC.Subscription;
 
 import BLL.OPC.ClientBase;
 import DAL.IO.DatabaseWriter;
+import DAL.Interfaces.DataAccessInterface;
 import Entity.Descriptor;
 import Entity.SQLData;
 import java.util.ArrayList;
@@ -35,9 +36,8 @@ public abstract class SubscriptionBase extends ClientBase implements Subscriptio
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final AtomicLong clientHandles = new AtomicLong(1L);
     private List<Descriptor> descriptions;
-    private SQLData data;
-    private DatabaseWriter writer;
-
+    private DataAccessInterface dataAccess;
+    
     public SubscriptionBase(String url, boolean anonymousIdentity) {
         super(url, anonymousIdentity);
     }
@@ -48,8 +48,6 @@ public abstract class SubscriptionBase extends ClientBase implements Subscriptio
     
     @Override
     protected void run(OpcUaClient client, CompletableFuture<OpcUaClient> future) throws Exception {
-    // Create database writer
-        writer = new DatabaseWriter(data);
 
         // Create NodeIds
         List<NodeId> nodeIds = new ArrayList<>();
@@ -97,9 +95,6 @@ public abstract class SubscriptionBase extends ClientBase implements Subscriptio
             }
         }    
         
-        /// Start database writer
-        Thread writerThread = new Thread(writer);
-        writerThread.start();
     }
 
     @Override
@@ -126,13 +121,12 @@ public abstract class SubscriptionBase extends ClientBase implements Subscriptio
                 throw new IllegalArgumentException("ID type is not recognized! (" + idType + ")");
         }
 
-        writer.addDescriptor(node, description);
         return node;
     }
 
     @Override
     public void onSubscriptionValue(UaMonitoredItem item, DataValue dataValue) {
-        writer.addData(item.getReadValueId().getNodeId(), dataValue);
+        dataAccess.saveOPCData(item.getReadValueId().getNodeId(), dataValue);
         logger.info("subscription value recieved: item={} value={}", item.getReadValueId().getNodeId(), dataValue.getValue().getValue());
     }
 
@@ -141,8 +135,7 @@ public abstract class SubscriptionBase extends ClientBase implements Subscriptio
         this.descriptions = descriptions;
     }
 
-    @Override
-    public void setData(SQLData data) {
-        this.data = data;
+    public void addDataAccessManager(DataAccessInterface accessInterface) {
+        this.dataAccess = accessInterface;
     }
 }

@@ -1,13 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package DAL.Interfaces;
 
 import Entity.OPCData;
 import Entity.SQLData;
 import java.util.List;
+import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
+import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 
 /**
  *
@@ -50,4 +47,15 @@ public interface DataAccessInterface {
      * @throws Exception
      */
     public List<OPCData> getAllOPCConfings() throws Exception;
+    
+    /**
+     * Save data from an OPC node using the DatabaseWriter.
+     * @throws Exception 
+     */
+    public void saveOPCData(NodeId sourceNodeId, DataValue dataValue);
+
+    /**
+     * Start a new thread, using a DatabaseWriter Runnable
+     */
+    public void startDatabaseWriter();
 }

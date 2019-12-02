@@ -41,7 +41,6 @@ public class SubscriptionManager {
 
         SubscriptionInterface subscription = factory.createSubscription(opcData);
 
-        subscription.setData(sqlData);
         subscription.setDescriptions(descriptors);
         
         return subscription;

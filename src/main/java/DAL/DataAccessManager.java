@@ -1,5 +1,6 @@
 package DAL;
 
+import DAL.IO.DatabaseWriter;
 import DAL.IO.OPCConfigurationReader;
 import DAL.IO.SQLConfigurationReader;
 import DAL.Interfaces.DataAccessInterface;
@@ -8,15 +9,21 @@ import DAL.Interfaces.SQLConfigurationReaderInterface;
 import Entity.OPCData;
 import Entity.SQLData;
 import java.util.List;
+import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
+import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 
 /**
- *
+ * Responsible for accessing different databases using dedicated classes
  * @author Developer
  */
 public class DataAccessManager implements DataAccessInterface {
 
     private final SQLConfigurationReaderInterface _SQLReader;
     private final OPCConfigurationReaderInterface _OPCReader;
+    
+    private DatabaseWriter databaseWriter;
+    
+    private SQLData data;
 
     public DataAccessManager() throws Exception {
         try {
@@ -31,12 +38,24 @@ public class DataAccessManager implements DataAccessInterface {
         _SQLReader = SQLReader;
         _OPCReader = OPCReader;
     }
+    
+    public void startDatabaseWriter() {
+        Thread dbWriterThread = new Thread(databaseWriter);
+        
+        dbWriterThread.start();
+    }
+    
+    @Override
+    public void saveOPCData(NodeId nodeId, DataValue value){
+        databaseWriter.addData(nodeId, value);
+    }
 
     @Override
     public SQLData getSQLConfigById(int id) throws Exception {
         if (id > 0) {
             try {
-                return _SQLReader.getConfigById(id);
+                data = _SQLReader.getConfigById(id);
+                return data;
             } catch (Exception e) {
                 throw e;
             }

@@ -30,9 +30,13 @@ public class DataCollectorMain {
         
         SQLData data = getSqlData(sqlId);
         OPCData opcData = getOpcData(opcId);
-
+        
+        datamanager.startDatabaseWriter();
+        
         SubscriptionManager manager = new SubscriptionManager(opcData, data);
 
+        
+        
         manager.startMonitoring();
     }
 

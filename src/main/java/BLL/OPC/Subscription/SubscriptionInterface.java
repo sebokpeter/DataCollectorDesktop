@@ -34,10 +34,4 @@ public interface SubscriptionInterface {
      */
     void setDescriptions(List<Descriptor> descriptions);
     
-    /**
-     * Set the SQL data (used for creating a DatabaseWriter)
-     * @param data The SQL data
-     */
-    void setData(SQLData data);
-    
 }

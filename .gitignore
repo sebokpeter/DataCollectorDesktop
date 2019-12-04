@@ -9,3 +9,7 @@ target/classes/.netbeans_automatic_build
 /nbproject/
 target/surefire-reports/TEST-SubscriptionFactoryTests.xml
 target/surefire-reports/SubscriptionFactoryTests.txt
+*.txt
+*.xml
+*.dumpstream
+*.dump

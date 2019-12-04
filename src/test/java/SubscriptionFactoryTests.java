@@ -6,9 +6,6 @@ import BLL.OPC.Subscription.UsernameSubscription;
 import Entity.OPCData;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import net.bytebuddy.asm.Advice;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,8 +13,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 
 /**
  * Some simple tests for the SubscriptionFactory
@@ -80,11 +75,6 @@ public class SubscriptionFactoryTests {
     public void tearDown() {
     }
 
-    // TODO add test methods here.
-    // The methods must be annotated with annotation @Test. For example:
-    //
-    // @Test
-    // public void hello() {}
     /**
      * Test if the factory correctly returns anonymous subscriptions 
      */
@@ -128,7 +118,7 @@ public class SubscriptionFactoryTests {
         SubscriptionFactory factory = mock(SubscriptionFactory.class);
         try{
             when(factory.createSubscription(any(OPCData.class))).thenCallRealMethod();
-            for (OPCData oPCData : usernameOPCData) {
+            for (OPCData oPCData : incorrectOPCData) {
                 assertThrows(Exception.class, () -> factory.createSubscription(oPCData));
             }
         } catch (Exception e) {

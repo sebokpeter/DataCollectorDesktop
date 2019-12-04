@@ -33,7 +33,7 @@ public class DataAccessManagerTests {
 
     private List<SQLData> data;
     
-    @Mock private DataAccessManager dataAccessManager;
+    @InjectMocks private DataAccessManager dataAccessManager;
     
     public DataAccessManagerTests() {
                 System.err.println("");
@@ -49,6 +49,7 @@ public class DataAccessManagerTests {
     
     @BeforeEach
     public void setUp() throws Exception {
+        // Alist of SQLData objects, serves a mock 'database'
         MockitoAnnotations.initMocks(this);
         data = new ArrayList<>();
         data.add(new SQLData(1));
@@ -85,7 +86,7 @@ public class DataAccessManagerTests {
     public void verifyGetConfigCall() {
         try {
             SQLData result = dataAccessManager.getSQLConfigById(1);
-            Mockito.verify(sqlConfReaderMock.getConfigById(0), Mockito.times(1));
+            Mockito.verify(sqlConfReaderMock, Mockito.times(1)).getConfigById(1);
         } catch (Exception ex) {
             Logger.getLogger(DataAccessManagerTests.class.getName()).log(Level.SEVERE, null, ex);
         }

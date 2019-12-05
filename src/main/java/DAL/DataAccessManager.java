@@ -40,6 +40,7 @@ public class DataAccessManager implements DataAccessInterface {
     }
     
     public void startDatabaseWriter() {
+        databaseWriter = new DatabaseWriter(data);
         Thread dbWriterThread = new Thread(databaseWriter);
         
         dbWriterThread.start();

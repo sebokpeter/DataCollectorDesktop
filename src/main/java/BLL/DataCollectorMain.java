@@ -25,8 +25,11 @@ public class DataCollectorMain {
         int ids[] = processArgument(args);
         int sqlId = ids[0];
         int opcId = ids[1];
+        
+       // int sqlId = 1;
+       // int opcId = 1;
 
-        datamanager = new DataAccessManager();
+        datamanager = DataAccessManager.getInstance();
         
         SQLData data = getSqlData(sqlId);
         OPCData opcData = getOpcData(opcId);

@@ -6,6 +6,7 @@ import DAL.IO.SQLConfigurationReader;
 import DAL.Interfaces.DataAccessInterface;
 import DAL.Interfaces.OPCConfigurationReaderInterface;
 import DAL.Interfaces.SQLConfigurationReaderInterface;
+import Entity.Descriptor;
 import Entity.OPCData;
 import Entity.SQLData;
 import java.util.List;
@@ -25,7 +26,13 @@ public class DataAccessManager implements DataAccessInterface {
     
     private SQLData data;
 
-    public DataAccessManager() throws Exception {
+    private DatabaseWriter databaseWriter;
+    
+    private SQLData data;
+    
+    private static DataAccessManager instance;
+    
+    private DataAccessManager() throws Exception {
         try {
             _SQLReader = new SQLConfigurationReader();
             _OPCReader = new OPCConfigurationReader();
@@ -33,7 +40,7 @@ public class DataAccessManager implements DataAccessInterface {
             throw e;
         }
     }
-
+    
     public DataAccessManager(SQLConfigurationReaderInterface SQLReader, OPCConfigurationReaderInterface OPCReader) {
         _SQLReader = SQLReader;
         _OPCReader = OPCReader;
@@ -45,6 +52,34 @@ public class DataAccessManager implements DataAccessInterface {
         
         dbWriterThread.start();
     }
+    
+    @Override
+    public void saveOPCData(NodeId nodeId, DataValue value){
+        databaseWriter.addData(nodeId, value);
+    }
+
+    
+    public static DataAccessManager getInstance() throws Exception {
+        if(instance == null) {
+            instance = new DataAccessManager();
+        }
+        
+        return instance;
+    }
+    
+    @Override
+    public void startDatabaseWriter() {
+        databaseWriter = new DatabaseWriter(data);
+        Thread dbWriterThread = new Thread(databaseWriter);
+        
+        dbWriterThread.start();
+    }
+    
+    @Override
+    public void addDescriptor(NodeId nodeID, Descriptor desc) {
+        databaseWriter.addDescriptor(nodeID, desc);
+    }
+    
     
     @Override
     public void saveOPCData(NodeId nodeId, DataValue value){

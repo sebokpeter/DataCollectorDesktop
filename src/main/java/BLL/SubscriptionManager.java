@@ -29,7 +29,7 @@ public class SubscriptionManager {
 
     public void startMonitoring() throws Exception {
         SubscriptionInterface sub = createSubscription();
-
+ 
         new ClientRunner((ClientBase) sub).run();
     }
 

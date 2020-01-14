@@ -1,7 +1,7 @@
 package BLL.OPC.Subscription;
 
 import BLL.OPC.ClientBase;
-import DAL.IO.DatabaseWriter;
+import DAL.DataAccessManager;
 import DAL.Interfaces.DataAccessInterface;
 import Entity.Descriptor;
 import Entity.SQLData;
@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
+import java.util.logging.Level;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaMonitoredItem;
 import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaSubscription;
@@ -36,14 +37,25 @@ public abstract class SubscriptionBase extends ClientBase implements Subscriptio
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final AtomicLong clientHandles = new AtomicLong(1L);
     private List<Descriptor> descriptions;
+    private SQLData data;
     private DataAccessInterface dataAccess;
-    
+
     public SubscriptionBase(String url, boolean anonymousIdentity) {
         super(url, anonymousIdentity);
+        try {
+            dataAccess = DataAccessManager.getInstance();
+        } catch (Exception ex) {
+            java.util.logging.Logger.getLogger(SubscriptionBase.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public SubscriptionBase(String url, String username, String password) {
         super(url, username, password);
+        try {
+            dataAccess = DataAccessManager.getInstance();
+        } catch (Exception ex) {
+            java.util.logging.Logger.getLogger(SubscriptionBase.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     @Override
@@ -120,7 +132,9 @@ public abstract class SubscriptionBase extends ClientBase implements Subscriptio
                 logger.error("ID type is not recognized! ({})", idType);
                 throw new IllegalArgumentException("ID type is not recognized! (" + idType + ")");
         }
-
+        
+        dataAccess.addDescriptor(node, description);
+        
         return node;
     }
 

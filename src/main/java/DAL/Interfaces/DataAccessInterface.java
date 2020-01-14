@@ -1,5 +1,6 @@
 package DAL.Interfaces;
 
+import Entity.Descriptor;
 import Entity.OPCData;
 import Entity.SQLData;
 import java.util.List;
@@ -58,4 +59,12 @@ public interface DataAccessInterface {
      * Start a new thread, using a DatabaseWriter Runnable
      */
     public void startDatabaseWriter();
+    
+    /**
+     * Associate a NodeID with its descriptor in the DatabaseWriter
+     * @param id 
+     * @param desc 
+     */
+    public void addDescriptor(NodeId id, Descriptor desc);
+
 }

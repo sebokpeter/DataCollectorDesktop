@@ -5,6 +5,7 @@ import DAL.IO.SQLConfigurationReader;
 import DAL.Interfaces.DataAccessInterface;
 import DAL.Interfaces.OPCConfigurationReaderInterface;
 import DAL.Interfaces.SQLConfigurationReaderInterface;
+import Entity.Descriptor;
 import Entity.OPCData;
 import Entity.SQLData;
 import java.util.List;
@@ -17,8 +18,19 @@ public class DataAccessManager implements DataAccessInterface {
 
     private final SQLConfigurationReaderInterface _SQLReader;
     private final OPCConfigurationReaderInterface _OPCReader;
+<<<<<<< Updated upstream
 
     public DataAccessManager() throws Exception {
+=======
+    
+    private DatabaseWriter databaseWriter;
+    
+    private SQLData data;
+    
+    private static DataAccessManager instance;
+    
+    private DataAccessManager() throws Exception {
+>>>>>>> Stashed changes
         try {
             _SQLReader = new SQLConfigurationReader();
             _OPCReader = new OPCConfigurationReader();
@@ -26,11 +38,40 @@ public class DataAccessManager implements DataAccessInterface {
             throw e;
         }
     }
-
+    
+    
     public DataAccessManager(SQLConfigurationReaderInterface SQLReader, OPCConfigurationReaderInterface OPCReader) {
         _SQLReader = SQLReader;
         _OPCReader = OPCReader;
     }
+<<<<<<< Updated upstream
+=======
+    
+    public static DataAccessManager getInstance() throws Exception {
+        if(instance == null) {
+            instance = new DataAccessManager();
+        }
+        
+        return instance;
+    }
+    
+    public void startDatabaseWriter() {
+        databaseWriter = new DatabaseWriter(data);
+        Thread dbWriterThread = new Thread(databaseWriter);
+        
+        dbWriterThread.start();
+    }
+    
+    public void addDescriptor(NodeId nodeID, Descriptor desc) {
+        databaseWriter.addDescriptor(nodeID, desc);
+    }
+    
+    
+    @Override
+    public void saveOPCData(NodeId nodeId, DataValue value){
+        databaseWriter.addData(nodeId, value);
+    }
+>>>>>>> Stashed changes
 
     @Override
     public SQLData getSQLConfigById(int id) throws Exception {

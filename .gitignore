@@ -9,3 +9,8 @@ target/classes/.netbeans_automatic_build
 /nbproject/
 target/surefire-reports/TEST-SubscriptionFactoryTests.xml
 target/surefire-reports/SubscriptionFactoryTests.txt
+target/surefire-reports/DataAccessManagerTests.txt
+target/surefire-reports/TEST-DataAccessManagerTests.xml
+target/surefire-reports/2020-01-14T12-37-33_621.dumpstream
+target/classes/META-INF/persistence.xml
+target/classes/META-INF/persistence.xml

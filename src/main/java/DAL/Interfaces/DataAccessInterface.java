@@ -9,6 +9,8 @@ import Entity.Descriptor;
 import Entity.OPCData;
 import Entity.SQLData;
 import java.util.List;
+import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
+import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 
 /**
  *
@@ -51,8 +53,7 @@ public interface DataAccessInterface {
      * @throws Exception
      */
     public List<OPCData> getAllOPCConfings() throws Exception;
-<<<<<<< Updated upstream
-=======
+
     
     /**
      * Save data from an OPC node using the DatabaseWriter.
@@ -71,5 +72,5 @@ public interface DataAccessInterface {
      * @param desc 
      */
     public void addDescriptor(NodeId id, Descriptor desc);
->>>>>>> Stashed changes
+
 }

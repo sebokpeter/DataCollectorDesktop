@@ -26,14 +26,16 @@ public class DataCollectorMain {
         int sqlId = ids[0];
         int opcId = ids[1];
         
-       // int sqlId = 1;
-       // int opcId = 1;
+        //int sqlId = 1;
+        //int opcId = 1;
 
         datamanager = DataAccessManager.getInstance();
         
         SQLData data = getSqlData(sqlId);
         OPCData opcData = getOpcData(opcId);
-
+        
+        datamanager.startDatabaseWriter();
+        
         SubscriptionManager manager = new SubscriptionManager(opcData, data);
 
         manager.startMonitoring();

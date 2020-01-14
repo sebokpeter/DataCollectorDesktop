@@ -1,5 +1,6 @@
 package DAL;
 
+import DAL.IO.DatabaseWriter;
 import DAL.IO.OPCConfigurationReader;
 import DAL.IO.SQLConfigurationReader;
 import DAL.Interfaces.DataAccessInterface;
@@ -9,6 +10,8 @@ import Entity.Descriptor;
 import Entity.OPCData;
 import Entity.SQLData;
 import java.util.List;
+import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
+import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 
 /**
  *
@@ -18,11 +21,7 @@ public class DataAccessManager implements DataAccessInterface {
 
     private final SQLConfigurationReaderInterface _SQLReader;
     private final OPCConfigurationReaderInterface _OPCReader;
-<<<<<<< Updated upstream
 
-    public DataAccessManager() throws Exception {
-=======
-    
     private DatabaseWriter databaseWriter;
     
     private SQLData data;
@@ -30,7 +29,6 @@ public class DataAccessManager implements DataAccessInterface {
     private static DataAccessManager instance;
     
     private DataAccessManager() throws Exception {
->>>>>>> Stashed changes
         try {
             _SQLReader = new SQLConfigurationReader();
             _OPCReader = new OPCConfigurationReader();
@@ -39,13 +37,11 @@ public class DataAccessManager implements DataAccessInterface {
         }
     }
     
-    
     public DataAccessManager(SQLConfigurationReaderInterface SQLReader, OPCConfigurationReaderInterface OPCReader) {
         _SQLReader = SQLReader;
         _OPCReader = OPCReader;
     }
-<<<<<<< Updated upstream
-=======
+
     
     public static DataAccessManager getInstance() throws Exception {
         if(instance == null) {
@@ -55,6 +51,7 @@ public class DataAccessManager implements DataAccessInterface {
         return instance;
     }
     
+    @Override
     public void startDatabaseWriter() {
         databaseWriter = new DatabaseWriter(data);
         Thread dbWriterThread = new Thread(databaseWriter);
@@ -62,6 +59,7 @@ public class DataAccessManager implements DataAccessInterface {
         dbWriterThread.start();
     }
     
+    @Override
     public void addDescriptor(NodeId nodeID, Descriptor desc) {
         databaseWriter.addDescriptor(nodeID, desc);
     }
@@ -71,13 +69,13 @@ public class DataAccessManager implements DataAccessInterface {
     public void saveOPCData(NodeId nodeId, DataValue value){
         databaseWriter.addData(nodeId, value);
     }
->>>>>>> Stashed changes
 
     @Override
     public SQLData getSQLConfigById(int id) throws Exception {
         if (id > 0) {
             try {
-                return _SQLReader.getConfigById(id);
+                data = _SQLReader.getConfigById(id);
+                return data;
             } catch (Exception e) {
                 throw e;
             }

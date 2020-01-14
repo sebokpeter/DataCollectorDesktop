@@ -5,7 +5,6 @@
  */
 package DAL.Interfaces;
 
-import Entity.Descriptor;
 import Entity.OPCData;
 import Entity.SQLData;
 import java.util.List;
@@ -51,25 +50,4 @@ public interface DataAccessInterface {
      * @throws Exception
      */
     public List<OPCData> getAllOPCConfings() throws Exception;
-<<<<<<< Updated upstream
-=======
-    
-    /**
-     * Save data from an OPC node using the DatabaseWriter.
-     * @throws Exception 
-     */
-    public void saveOPCData(NodeId sourceNodeId, DataValue dataValue);
-
-    /**
-     * Start a new thread, using a DatabaseWriter Runnable
-     */
-    public void startDatabaseWriter();
-    
-    /**
-     * Associate a NodeID with its descriptor in the DatabaseWriter
-     * @param id 
-     * @param desc 
-     */
-    public void addDescriptor(NodeId id, Descriptor desc);
->>>>>>> Stashed changes
 }

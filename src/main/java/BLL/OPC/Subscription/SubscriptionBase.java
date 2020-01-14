@@ -1,19 +1,14 @@
 package BLL.OPC.Subscription;
 
 import BLL.OPC.ClientBase;
-<<<<<<< Updated upstream
 import DAL.IO.DatabaseWriter;
-=======
-import DAL.DataAccessManager;
-import DAL.Interfaces.DataAccessInterface;
->>>>>>> Stashed changes
 import Entity.Descriptor;
+import Entity.SQLData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
-import java.util.logging.Level;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaMonitoredItem;
 import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaSubscription;
@@ -45,20 +40,10 @@ public abstract class SubscriptionBase extends ClientBase implements Subscriptio
 
     public SubscriptionBase(String url, boolean anonymousIdentity) {
         super(url, anonymousIdentity);
-        try {
-            dataAccess = DataAccessManager.getInstance();
-        } catch (Exception ex) {
-            java.util.logging.Logger.getLogger(SubscriptionBase.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 
     public SubscriptionBase(String url, String username, String password) {
         super(url, username, password);
-        try {
-            dataAccess = DataAccessManager.getInstance();
-        } catch (Exception ex) {
-            java.util.logging.Logger.getLogger(SubscriptionBase.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
     
     @Override
@@ -140,14 +125,8 @@ public abstract class SubscriptionBase extends ClientBase implements Subscriptio
                 logger.error("ID type is not recognized! ({})", idType);
                 throw new IllegalArgumentException("ID type is not recognized! (" + idType + ")");
         }
-<<<<<<< Updated upstream
 
         writer.addDescriptor(node, description);
-=======
-        
-        dataAccess.addDescriptor(node, description);
-        
->>>>>>> Stashed changes
         return node;
     }
 

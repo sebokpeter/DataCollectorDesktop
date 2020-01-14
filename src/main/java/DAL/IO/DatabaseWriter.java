@@ -69,8 +69,6 @@ public class DatabaseWriter implements Runnable {
 
         descriptors = new ConcurrentHashMap<>();
         data = new ConcurrentLinkedHashMap.Builder<NodeId, DataValue>().maximumWeightedCapacity(10000).build();
-        
-        logger.info("DatabaseWriter created");
     }
 
     @Override
@@ -87,9 +85,6 @@ public class DatabaseWriter implements Runnable {
             data.remove(node);
 
             Descriptor desc = descriptors.get(node);
-            
-            logger.info("Descriptor: {}", desc.toString());
-            
             DatabaseFieldType type = desc.getType();
             // Create query
             String query = String.format("INSERT INTO %s (DESCRIPTOR_ID, NODE_ID, VALUE_TYPE, VALUE, TIMESTAMP) VALUES (%s, '%s', '%s', ?, ?)", tableName, desc.getDId(), desc.getNodeid(), desc.getType().toString());
@@ -104,7 +99,6 @@ public class DatabaseWriter implements Runnable {
             if (executeUpdate != 1) {
                 logger.error("Unable to insert value {} - {} to database", getData, type);
             }
-            logger.info("Inserted value {} - {} to database", getData, type);
             manager.getTransaction().commit();
         }
     }

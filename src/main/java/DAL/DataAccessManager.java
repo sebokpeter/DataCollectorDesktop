@@ -25,10 +25,6 @@ public class DataAccessManager implements DataAccessInterface {
     private DatabaseWriter databaseWriter;
     
     private SQLData data;
-
-    private DatabaseWriter databaseWriter;
-    
-    private SQLData data;
     
     private static DataAccessManager instance;
     
@@ -68,23 +64,11 @@ public class DataAccessManager implements DataAccessInterface {
     }
     
     @Override
-    public void startDatabaseWriter() {
-        databaseWriter = new DatabaseWriter(data);
-        Thread dbWriterThread = new Thread(databaseWriter);
-        
-        dbWriterThread.start();
-    }
-    
-    @Override
     public void addDescriptor(NodeId nodeID, Descriptor desc) {
         databaseWriter.addDescriptor(nodeID, desc);
     }
     
-    
-    @Override
-    public void saveOPCData(NodeId nodeId, DataValue value){
-        databaseWriter.addData(nodeId, value);
-    }
+   
 
     @Override
     public SQLData getSQLConfigById(int id) throws Exception {
